@@ -22,13 +22,20 @@ TEST_CASE("good input"){
         zich::Matrix a{identity, 3, 3};
         zich::Matrix b{arr, 3, 3};
         CHECK_EQ((a == b), true);
-        a = a+=b;
-        CHECK_EQ((a == b), false);
+        // a = a+=b;
+        CHECK_EQ(((a+=b) == b), false);        
     }
     SUBCASE("+(unary"){
 
     }
     SUBCASE("++"){
+        std::vector<double> identity = {3, 0, 0, 0, 3, 0, 0, 0, 3};
+        std::vector<double> arr = {4, 1, 1, 1, 4, 1, 1, 1, 4};
+        zich::Matrix a{identity, 3, 3};
+        zich::Matrix b{arr, 3, 3};
+        CHECK_EQ((a == b), false);
+        a = ++a;
+        CHECK_EQ((a == b), true);
 
     }
     SUBCASE("-="){
@@ -43,9 +50,7 @@ TEST_CASE("good input"){
     SUBCASE("--"){
 
     }
-    SUBCASE("compare operators"){
 
-    }
     SUBCASE("*=(scalar)"){
 
     }
@@ -57,6 +62,32 @@ TEST_CASE("good input"){
     }
     SUBCASE("*(matrix)"){
 
+    }
+    SUBCASE("compare same matrix"){
+        std::vector<double> v1 = {3, 0, 0, 0, -3, 0, 0, 0, 3};
+        std::vector<double> v2 = {3, 0, 0, 0, -3, 0, 0, 0, 3};
+        
+        zich::Matrix m1{v1, 3, 3};
+        zich::Matrix m2{v2, 3, 3};
+        
+        CHECK_EQ(m1 == m2,true);
+        CHECK_EQ(m1 >= m2,true);
+        CHECK_EQ(m1 > m2,false);
+        CHECK_EQ(m1 <= m2,true);
+        CHECK_EQ(m1 < m2,false);
+        CHECK_EQ(m1 != m2,false);
+    }
+    SUBCASE("compare matrix with same size but different values"){
+        std::vector<double> v2 = {3, 0, 0, 0, -3, 0, 0, 0, 3};
+        std::vector<double> v3 = {3, 0, 0, 0, 3, 0, 0, 0, 3};
+        zich::Matrix m3{v3, 3, 3}; //m3 is bigger
+        zich::Matrix m2{v2, 3, 3};
+        CHECK_EQ(m2 == m3,false);
+        CHECK_EQ(m2 >= m3,false);
+        CHECK_EQ(m2 > m3,false);
+        CHECK_EQ(m2 <= m3,true);
+        CHECK_EQ(m2 < m3,true);
+        CHECK_EQ(m2 != m3,true);
     }
 
 }
@@ -105,4 +136,5 @@ TEST_CASE("bad input"){
     CHECK_THROWS(m3 + m2);
     CHECK_THROWS(m2 -= m1);
     CHECK_THROWS(m2 += m3);
+    
 }

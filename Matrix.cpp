@@ -44,18 +44,27 @@ Matrix& Matrix::operator+=(Matrix const &mat){
     return *this;
  }
 
- Matrix Matrix::operator+(){
-     Matrix unary_mat{this->data,this->row,this->col};
+ Matrix operator+(Matrix& mat){
+     Matrix unary_mat{mat.data,mat.row,mat.col};
      return unary_mat;
  }
 
- Matrix& Matrix::operator++(){
+Matrix& Matrix::operator++(){
      for(int i = 0; i < this->data.size(); i++)
      {
          this->data[size_t(i)] += 1;
      }
      return *this;
  }
+
+// Matrix operator++(const int num){
+//     Matrix m = *this;
+
+// }
+
+// Matrix operator--(const int num){
+
+// }
 
 Matrix Matrix::operator-(Matrix const &mat){
     is_legal(mat);
@@ -84,20 +93,20 @@ Matrix& Matrix::operator--(){
     return *this;
 }
 
-Matrix Matrix::operator-(){
-    Matrix unary_neg{this->data,row,col};
-    for (int i = 0; i < this->data.size(); i++)
+Matrix operator-(Matrix& mat){
+    Matrix unary_neg{mat.data,mat.row,mat.col};
+    for (int i = 0; i < mat.data.size(); i++)
     {   
-        if(this->data[size_t(i)] == 0){
+        if(mat.data[size_t(i)] == 0){
             continue;
         }
-        unary_neg.data[size_t(i)] = (-1)*(this->data[size_t(i)]);
+        unary_neg.data[size_t(i)] = (-1)*(mat.data[size_t(i)]);
         
     }
     return unary_neg;
 }
 
-double Matrix::sum_mat(){
+double Matrix::sum_mat()const{
     double sum = 0;
     for (int i = 0; i < this->data.size(); i++)
     {
@@ -118,7 +127,7 @@ bool Matrix::operator<(Matrix& mat){
     return this->sum_mat() < mat.sum_mat();
 }
 
-bool Matrix::operator<=(Matrix& mat){
+bool Matrix::operator<=(const Matrix& mat)const{
     return this->sum_mat() <= mat.sum_mat();
 }
 
@@ -128,9 +137,15 @@ bool Matrix::operator!=(Matrix& mat){
 
 bool Matrix:: operator==(Matrix& mat){
     is_legal(mat);
-    double sum1 = this->sum_mat();
-    double sum2 = mat.sum_mat();
-    return (sum1 == sum2);
+    double sum1 = 0;
+    double sum2 = 0;
+    for (int i = 0; i < this->data.size(); i++){
+        if(this->data[size_t(i)] != mat.data[size_t(i)])
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 Matrix& Matrix::operator*=(const double scalar){
