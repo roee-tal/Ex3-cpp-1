@@ -1,7 +1,7 @@
 #include "Matrix.hpp"
 namespace zich{
 
-Matrix::Matrix(std::vector<double> data, const int row, const int col)
+Matrix::Matrix(std::vector<double> data, const int row, const int col):row(row),col(col)
 {
     if (row <= 0 || col <= 0)
     {
@@ -12,8 +12,6 @@ Matrix::Matrix(std::vector<double> data, const int row, const int col)
          throw std::runtime_error("row*col should be same to the matrix size");
     }
     this->data = std::move(data);
-    this->row = row;
-    this->col = col;
 }
 
 void Matrix:: is_legal(Matrix const &mat)const{
@@ -23,9 +21,6 @@ void Matrix:: is_legal(Matrix const &mat)const{
 }
 
 Matrix Matrix::operator+(Matrix const &mat){
-    // if(this->row != mat.row || this->col != mat.row){
-    //     throw std::invalid_argument("row and col must be equal");
-    // }
     is_legal(mat);
     Matrix mat_res{this->data,row,col};
     for (int i = 0; i < mat_res.data.size(); i++)
@@ -57,14 +52,24 @@ Matrix& Matrix::operator++(){
      return *this;
  }
 
-// Matrix operator++(const int num){
-//     Matrix m = *this;
+Matrix Matrix::operator++(const int num){
+    Matrix copy = *this;
+    for(int i = 0; i < this->data.size(); i++)
+     {
+         this->data[size_t(i)] += 1;
+     }
+     return copy;
 
-// }
+}
 
-// Matrix operator--(const int num){
-
-// }
+Matrix Matrix::operator--(const int num){
+    Matrix copy = *this;
+    for(int i = 0; i < this->data.size(); i++)
+    {
+         this->data[size_t(i)] -= 1;
+    }
+    return copy;
+}
 
 Matrix Matrix::operator-(Matrix const &mat){
     is_legal(mat);
@@ -116,22 +121,27 @@ double Matrix::sum_mat()const{
 }
 
 bool Matrix::operator>(Matrix& mat){
+    is_legal(mat);
     return this->sum_mat() > mat.sum_mat();
 }
 
 bool Matrix::operator>=(Matrix& mat){
+    is_legal(mat);
     return this->sum_mat() >= mat.sum_mat();
 }
 
-bool Matrix::operator<(Matrix& mat){
+bool Matrix::operator<(Matrix& mat){\
+    is_legal(mat);
     return this->sum_mat() < mat.sum_mat();
 }
 
 bool Matrix::operator<=(const Matrix& mat)const{
+    is_legal(mat);
     return this->sum_mat() <= mat.sum_mat();
 }
 
 bool Matrix::operator!=(Matrix& mat){
+    is_legal(mat);
     return this->sum_mat() != mat.sum_mat();
 }
 
@@ -147,6 +157,15 @@ bool Matrix:: operator==(Matrix& mat){
     }
     return true;
 }
+
+Matrix Matrix::operator*(const double scalar){
+    Matrix mat_res{this->data,this->row,this->col};
+    for (int i = 0; i < mat_res.data.size(); i++)
+    {
+        mat_res.data[size_t(i)] = this->data[size_t(i)] * scalar;
+    }
+    return mat_res;
+ }
 
 Matrix& Matrix::operator*=(const double scalar){
     for (int i = 0; i < this->data.size(); i++){
@@ -165,9 +184,46 @@ Matrix operator*(const double scalar, Matrix &mat){
     return mat_res;
 }
 
-// Matrix& Matrix::operator*=(const Matrix &mat){
-//     is_legal(mat);
-// }
+Matrix Matrix::operator*(const Matrix &mat){
+    if(this->col != mat.row){
+        throw std::runtime_error("left matrix's col has to be same to right matrix row");
+    }
+    std::vector<double> vector1;
+    vector1.resize((unsigned int)(this->row * mat.col));
+    for (int i = 0; i < this->row; i++)
+    {
+        for (int j = 0; j < mat.col; j++)
+        {
+            for (int k = 0; k < this->col; k++)
+            {
+                vector1[size_t(mat.col*i+j)] += this->data[size_t(this->col*i+k)]*mat.data[size_t(mat.col*k+j)];
+            }
+        }
+    }
+    Matrix mat3(vector1, this->row, mat.col);
+    return mat3;
+}
+
+Matrix& Matrix::operator*=(const Matrix &mat){
+    if(this->col != mat.row){
+        throw std::runtime_error("left matrix's col has to be same to right matrix row");
+    }
+    std::vector<double> mat3_data;
+    mat3_data.resize((unsigned int)(this->row * mat.col));
+    for (int i = 0; i < this->row; i++)
+    {
+        for (int j = 0; j < mat.col; j++)
+        {
+            for (int k = 0; k < this->col; k++)
+            {
+                mat3_data[size_t(mat.col*i+j)] += this->data[size_t(this->col*i+k)]*mat.data[size_t(mat.col*k+j)];
+            }
+        }
+    }
+    this->data = mat3_data;
+    this->col = mat.col;
+    return *this;
+}
 
 std::ostream& operator << (std::ostream &out, const Matrix &mat){
     for (int i = 0; i < mat.row; i++){
